@@ -77,17 +77,18 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\glew-2.1.0\include;$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\include;$(SolutionDir)..\..\external\glad\include;$(SolutionDir)..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\glew-2.1.0\include;$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\include;$(SolutionDir)..\..\external\glad\include;$(SolutionDir)..\..\external;$(SolutionDir)..\..\external\assimp\include;$(SolutionDir)..\..\external\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;GDI32.lib;Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\lib-vc2022;$(SolutionDir)..\..\external\assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;GDI32.lib;Shell32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(OutDir)shaders" mkdir "$(OutDir)shaders"
-xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"</Command>
+xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"
+xcopy /Y /I "$(SolutionDir)..\..\external\assimp\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -99,17 +100,18 @@ xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"</Command>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\glew-2.1.0\include;$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\include;$(SolutionDir)..\..\external\glad\include;$(SolutionDir)..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\glew-2.1.0\include;$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\include;$(SolutionDir)..\..\external\glad\include;$(SolutionDir)..\..\external;$(SolutionDir)..\..\external\assimp\include;$(SolutionDir)..\..\external\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;GDI32.lib;Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\lib-vc2022;$(SolutionDir)..\..\external\assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;GDI32.lib;Shell32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(OutDir)shaders" mkdir "$(OutDir)shaders"
-xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"</Command>
+xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"
+xcopy /Y /I "$(SolutionDir)..\..\external\assimp\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -119,17 +121,18 @@ xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"</Command>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\glew-2.1.0\include;$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\include;$(SolutionDir)..\..\external\glad\include;$(SolutionDir)..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\glew-2.1.0\include;$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\include;$(SolutionDir)..\..\external\glad\include;$(SolutionDir)..\..\external;$(SolutionDir)..\..\external\assimp\include;$(SolutionDir)..\..\external\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;GDI32.lib;Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\lib-vc2022;$(SolutionDir)..\..\external\assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;GDI32.lib;Shell32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(OutDir)shaders" mkdir "$(OutDir)shaders"
-xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"</Command>
+xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"
+xcopy /Y /I "$(SolutionDir)..\..\external\assimp\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,17 +144,18 @@ xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"</Command>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\glew-2.1.0\include;$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\include;$(SolutionDir)..\..\external\glad\include;$(SolutionDir)..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\glew-2.1.0\include;$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\include;$(SolutionDir)..\..\external\glad\include;$(SolutionDir)..\..\external;$(SolutionDir)..\..\external\assimp\include;$(SolutionDir)..\..\external\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;GDI32.lib;Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\external\glfw-3.4.bin.WIN64\lib-vc2022;$(SolutionDir)..\..\external\assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;GDI32.lib;Shell32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(OutDir)shaders" mkdir "$(OutDir)shaders"
-xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"</Command>
+xcopy /Y /I /E "$(ProjectDir)shaders\*" "$(OutDir)shaders"
+xcopy /Y /I "$(SolutionDir)..\..\external\assimp\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
