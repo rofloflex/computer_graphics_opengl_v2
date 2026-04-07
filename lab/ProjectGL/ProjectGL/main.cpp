@@ -1,32 +1,14 @@
-#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include "Shader.h"
 #include <iostream>
+#include <vector>
+#include <cmath>
 
-void drawStar()
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    float vertices[][2] = {
-        { 0.0f,  0.0f},   // 0. Центр звезды (нужен для корректного Triangle Fan)
-        { 0.0f,  0.5f},   // 1. Верхняя вершина
-        { 0.12f, 0.15f},  // 2. Внутренняя 
-        { 0.5f,  0.15f},  // 3. Правая
-        { 0.2f, -0.1f},   // 4. Внутренняя
-        { 0.35f, -0.5f},  // 5. Нижняя правая
-        { 0.0f, -0.25f},  // 6. Внутренняя нижняя
-        {-0.35f, -0.5f},  // 7. Нижняя левая
-        {-0.2f, -0.1f},   // 8. Внутренняя
-        {-0.5f,  0.15f},  // 9. Левая
-        {-0.12f, 0.15f},  // 10. Внутренняя
-        { 0.0f,  0.5f}    // 11. Замыкающая (та же, что и 1-я вершина луча)
-    };
-
-    // Triangle Fan рисует треугольники от центра (вершина 0) к каждой паре точек
-    glBegin(GL_TRIANGLE_FAN);
-    for (int i = 0; i < 12; ++i)
-    {
-        glVertex2f(vertices[i][0], vertices[i][1]);
-    }
-    glEnd();
+    glViewport(0, 0, width, height);
 }
 
 int main()
@@ -37,10 +19,13 @@ int main()
         return -1;
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    // OpenGL 4.6 Core
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(512, 512, "STAR", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(512, 512, "STAR (VAO/VBO/EBO)", nullptr, nullptr);
     if (!window)
     {
         std::cout << "Ошибка создания окна\n";
@@ -49,6 +34,7 @@ int main()
     }
 
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK)
@@ -61,17 +47,91 @@ int main()
     std::cout << "OpenGL: " << glGetString(GL_VERSION) << "\n";
     std::cout << "GPU: " << glGetString(GL_RENDERER) << "\n";
 
+    // Формат:x,y
+    float vertices[] = {
+        0.0f,  0.0f,
+        0.0f,  0.5f,
+        0.12f, 0.15f,
+        0.5f,  0.15f,
+        0.2f, -0.1f,
+        0.35f,-0.5f,
+        0.0f, -0.25f,
+       -0.35f,-0.5f,
+       -0.2f, -0.1f,
+       -0.5f,  0.15f,
+       -0.12f, 0.15f
+    };
+
+    // Индексы для Triangle Fan:
+    unsigned int indices[] = {
+        0, 1, 2,
+        0, 2, 3,
+        0, 3, 4,
+        0, 4, 5,
+        0, 5, 6,
+        0, 6, 7,
+        0, 7, 8,
+        0, 8, 9,
+        0, 9, 10,
+        0, 10, 1
+    };
+    const unsigned int indexCount = sizeof(indices) / sizeof(indices[0]);
+
+    // VAO/VBO/EBO
+    GLuint VAO = 0, VBO = 0, EBO = 0;
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // layout(location=0) to vec2 position
+    glVertexAttribPointer(
+        0, 2, GL_FLOAT, GL_FALSE,
+        2 * sizeof(float),
+        (void*)0
+    );
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+
+    Shader shader("shaders/star.vert", "shaders/star.frag");
+    if (shader.ID == 0)
+    {
+        glfwTerminate();
+        return -1;
+    }
+
+    // Рендер-цикл
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // белый
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glColor3f(0.7f, 1.0f, 0.3f); // лаймовая
-        drawStar();
+        shader.use();
+
+        float t = (float)glfwGetTime();
+        shader.setFloat("uTime", t);
+
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    // очистка ресурсов
+    glDeleteBuffers(1, &EBO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
 
     glfwTerminate();
     return 0;
