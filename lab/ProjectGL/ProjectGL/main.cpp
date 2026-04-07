@@ -113,7 +113,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Lab 5 - ASSIMP", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Lab 6 - Phong Lighting", NULL, NULL);
     if (window == NULL)
     {
         cout << "ERROR::WINDOW_CREATION_FAILED" << endl;
@@ -145,12 +145,14 @@ int main()
 
         glUseProgram(shaderProgram);
 
+        glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 6.0f);
+
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 view = glm::lookAt(
-            glm::vec3(0.0f, 2.0f, 6.0f),
+            cameraPos,
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 1.0f, 0.0f)
         );
@@ -162,15 +164,26 @@ int main()
             100.0f
         );
 
-        GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
-        GLint viewLoc = glGetUniformLocation(shaderProgram, "view");
-        GLint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-        GLint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        glUniform3f(lightColorLoc, 0.7f, 0.9f, 1.0f);
+        // position of light
+        glUniform3f(glGetUniformLocation(shaderProgram, "light.position"), 3.0f, 3.0f, 3.0f);
+
+        // light components
+        glUniform3f(glGetUniformLocation(shaderProgram, "light.ambient"), 0.2f, 0.2f, 0.2f);
+        glUniform3f(glGetUniformLocation(shaderProgram, "light.diffuse"), 0.8f, 0.8f, 0.8f);
+        glUniform3f(glGetUniformLocation(shaderProgram, "light.specular"), 1.0f, 1.0f, 1.0f);
+
+        // material components
+        glUniform3f(glGetUniformLocation(shaderProgram, "material.ambient"), 0.7f, 0.7f, 0.7f);
+        glUniform3f(glGetUniformLocation(shaderProgram, "material.diffuse"), 0.7f, 0.7f, 0.7f);
+        glUniform3f(glGetUniformLocation(shaderProgram, "material.specular"), 0.9f, 0.9f, 0.9f);
+        glUniform1f(glGetUniformLocation(shaderProgram, "material.shininess"), 32.0f);
+
+        // camera position
+        glUniform3fv(glGetUniformLocation(shaderProgram, "viewPos"), 1, glm::value_ptr(cameraPos));
 
         myModel.Draw();
 
