@@ -3,26 +3,30 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include <string>
 
 using namespace std;
 
-struct Vertex {
+struct Vertex
+{
     glm::vec3 Position;
     glm::vec3 Normal;
 };
 
-class Mesh {
+class Mesh
+{
 public:
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     unsigned int VAO;
+    string name;
 
-    Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
+    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, const string& meshName)
     {
         this->vertices = vertices;
         this->indices = indices;
+        this->name = meshName;
         setupMesh();
     }
 

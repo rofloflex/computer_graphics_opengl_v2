@@ -17,7 +17,13 @@ using namespace std;
 const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
 
-float rotationAngle = 0.0f;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+float offsetZ = 0.0f;
+float angleY = 0.0f;
+float offsetX = 0.0f;
+float offsetY = 0.0f;
 
 string readFile(const char* filepath)
 {
@@ -94,11 +100,64 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        rotationAngle -= 0.02f;
+    float moveStep = deltaTime * 0.8f;
+    float rotateStep = deltaTime * 50.0f;
 
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        rotationAngle += 0.02f;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        float newVal = offsetZ + moveStep;
+        if (newVal <= 0.7f)
+            offsetZ = newVal;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        float newVal = offsetZ - moveStep;
+        if (newVal >= -0.7f)
+            offsetZ = newVal;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        float newVal = angleY + rotateStep;
+        if (newVal <= 60.0f)
+            angleY = newVal;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        float newVal = angleY - rotateStep;
+        if (newVal >= -60.0f)
+            angleY = newVal;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    {
+        float newVal = offsetX + moveStep;
+        if (newVal <= 0.1f)
+            offsetX = newVal;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        float newVal = offsetX - moveStep;
+        if (newVal >= -0.5f)
+            offsetX = newVal;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+    {
+        float newVal = offsetY + moveStep;
+        if (newVal <= 0.05f)
+            offsetY = newVal;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+    {
+        float newVal = offsetY - moveStep;
+        if (newVal >= -0.3f)
+            offsetY = newVal;
+    }
 }
 
 int main()
@@ -113,7 +172,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Lab 6 - Phong Lighting", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Lab 7 - Affine Transformations", NULL, NULL);
     if (window == NULL)
     {
         cout << "ERROR::WINDOW_CREATION_FAILED" << endl;
@@ -138,6 +197,10 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        float currentFrame = (float)glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         processInput(window);
 
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -147,13 +210,9 @@ int main()
 
         glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 6.0f);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-
         glm::mat4 view = glm::lookAt(
             cameraPos,
-            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 0.4f, 0.0f),
             glm::vec3(0.0f, 1.0f, 0.0f)
         );
 
@@ -164,28 +223,22 @@ int main()
             100.0f
         );
 
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        // position of light
         glUniform3f(glGetUniformLocation(shaderProgram, "light.position"), 3.0f, 3.0f, 3.0f);
-
-        // light components
         glUniform3f(glGetUniformLocation(shaderProgram, "light.ambient"), 0.2f, 0.2f, 0.2f);
         glUniform3f(glGetUniformLocation(shaderProgram, "light.diffuse"), 0.8f, 0.8f, 0.8f);
         glUniform3f(glGetUniformLocation(shaderProgram, "light.specular"), 1.0f, 1.0f, 1.0f);
 
-        // material components
         glUniform3f(glGetUniformLocation(shaderProgram, "material.ambient"), 0.7f, 0.7f, 0.7f);
         glUniform3f(glGetUniformLocation(shaderProgram, "material.diffuse"), 0.7f, 0.7f, 0.7f);
         glUniform3f(glGetUniformLocation(shaderProgram, "material.specular"), 0.9f, 0.9f, 0.9f);
         glUniform1f(glGetUniformLocation(shaderProgram, "material.shininess"), 32.0f);
 
-        // camera position
         glUniform3fv(glGetUniformLocation(shaderProgram, "viewPos"), 1, glm::value_ptr(cameraPos));
 
-        myModel.Draw();
+        myModel.Draw(shaderProgram, offsetZ, angleY, offsetX, offsetY);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

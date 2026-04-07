@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -13,8 +15,6 @@
 #include "Mesh.h"
 
 #include <string>
-#include <fstream>
-#include <sstream>
 #include <iostream>
 #include <vector>
 
@@ -26,26 +26,89 @@ public:
     vector<Mesh> meshes;
     string directory;
 
-    Model(string const& path)
+    Model(const string& path)
     {
         loadModel(path);
     }
 
-    void Draw()
+    int findMeshIndexByName(const string& targetName)
     {
-        for (unsigned int i = 0; i < meshes.size(); i++)
+        for (int i = 0; i < (int)meshes.size(); i++)
         {
-            meshes[i].Draw();
+            if (meshes[i].name == targetName)
+                return i;
         }
+        return -1;
+    }
+
+    void drawMeshWithMatrix(int meshIndex, GLuint shaderProgram, const glm::mat4& modelMatrix)
+    {
+        if (meshIndex < 0 || meshIndex >= (int)meshes.size())
+            return;
+
+        glUniformMatrix4fv(
+            glGetUniformLocation(shaderProgram, "model"),
+            1,
+            GL_FALSE,
+            glm::value_ptr(modelMatrix)
+        );
+
+        meshes[meshIndex].Draw();
+    }
+
+    void Draw(GLuint shaderProgram,
+        float moveZ,
+        float rotateYDeg,
+        float moveX,
+        float moveY)
+    {
+        int baseIndex = findMeshIndexByName("Cube");
+        int partZIndex = findMeshIndexByName("Cube.001");
+        int rotateIndex = findMeshIndexByName("Cube.003");
+        int moveXIndex = findMeshIndexByName("Cube.002");
+        int partYIndex = findMeshIndexByName("Cylinder.001");
+
+        glm::mat4 identity = glm::mat4(1.0f);
+
+        // Cube
+        glm::mat4 modelBase = identity;
+
+        // Cube.001
+        glm::mat4 modelPartZ = identity;
+        modelPartZ = glm::translate(modelPartZ, glm::vec3(0.0f, 0.0f, moveZ));
+
+        // Cube.003
+        glm::vec3 pivotRotate(0.0f, 0.5868775f, -0.10051175f);
+
+        glm::mat4 modelRotate = modelPartZ;
+        modelRotate = glm::translate(modelRotate, pivotRotate);
+        modelRotate = glm::rotate(modelRotate, glm::radians(rotateYDeg), glm::vec3(0.0f, 1.0f, 0.0f));
+        modelRotate = glm::translate(modelRotate, -pivotRotate);
+
+        // Cube.002
+        glm::mat4 modelMoveX = modelRotate;
+        modelMoveX = glm::translate(modelMoveX, glm::vec3(moveX, 0.0f, 0.0f));
+
+        // Cylinder.001
+        glm::mat4 modelPartY = modelMoveX;
+        modelPartY = glm::translate(modelPartY, glm::vec3(0.0f, moveY, 0.0f));
+
+        drawMeshWithMatrix(baseIndex, shaderProgram, modelBase);
+        drawMeshWithMatrix(partZIndex, shaderProgram, modelPartZ);
+        drawMeshWithMatrix(rotateIndex, shaderProgram, modelRotate);
+        drawMeshWithMatrix(moveXIndex, shaderProgram, modelMoveX);
+        drawMeshWithMatrix(partYIndex, shaderProgram, modelPartY);
     }
 
 private:
-    void loadModel(string const& path)
+    void loadModel(const string& path)
     {
         Assimp::Importer importer;
 
-        const aiScene* scene = importer.ReadFile(path,
-            aiProcess_Triangulate | aiProcess_GenNormals);
+        const aiScene* scene = importer.ReadFile(
+            path,
+            aiProcess_Triangulate | aiProcess_GenNormals
+        );
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
@@ -107,7 +170,8 @@ private:
             }
         }
 
-        return Mesh(vertices, indices);
+        string meshName = mesh->mName.C_Str();
+        return Mesh(vertices, indices, meshName);
     }
 };
 
