@@ -1,0 +1,25 @@
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.suo
+
+# Build folders
+x64/
+Debug/
+Release/
+
+# Executables
+*.exe
+*.dll
+
+# CMake (на всякий)
+CMakeFiles/
+CMakeCache.txt
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.obj
+*.pdb
